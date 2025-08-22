@@ -18,6 +18,7 @@ const PORT = parseInt(process.env.PORT as string, 10) || 3000
 
 const app = express()
 
+
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 app.use(cors())
@@ -38,3 +39,4 @@ scheduleVercelPolling();
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)
 })
+
