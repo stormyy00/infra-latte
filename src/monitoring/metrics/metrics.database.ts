@@ -17,7 +17,6 @@ export const httpErrors = new client.Counter<keyof ErrorLabels>({
   labelNames: ["target", "status"],
 });
 
-// Vercel deploy awareness (set by poller)
 export const vercelLastDeploy = new client.Gauge({
   name: "vercel_last_deploy_unixtime",
   help: "Unix time of last seen deploy",

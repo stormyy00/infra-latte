@@ -1,22 +1,43 @@
 version: "3.8"
 services:
   monitor:
-    build: ./src
+    build: .
     environment:
       - PORT=3000
-      - TARGET_URL=https://yourapp.vercel.app
-      - VERCEL_TOKEN=xxx
-      - VERCEL_PROJECT=yourprojectid
+      - TARGET_URL=${TARGET_URL}
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - VERCEL_PROJECT=${VERCEL_PROJECT}
     ports: ["3000:3000"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/metrics > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+      - --storage.tsdb.retention.time=15d
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports: ["9090:9090"]
+    depends_on:
+      monitor:
+        condition: service_healthy
+    restart: unless-stopped
 
   grafana:
-    image: grafana/grafana
-    ports: ["3001:3000"]
+    image: grafana/grafana:latest
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports: ["3001:3000"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+volumes:
+  grafana-data:

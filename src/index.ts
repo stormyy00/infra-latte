@@ -10,9 +10,9 @@ import metricsRoute from "./monitoring/metrics/metrics.database"
 import { scheduleVercelPolling } from "./monitoring/vercel/poller";
 
 
-if (!process.env.PORT) {
-    console.log(`No port value specified...`)
-}
+// if (!process.env.PORT) {
+//     console.log(`No port value specified...`)
+// }
 
 const PORT = parseInt(process.env.PORT as string, 10) || 3000
 
@@ -24,10 +24,13 @@ app.use(cors())
 app.use(helmet())
 app.use(bodyParser.json({ verify: (_req: any, _res, _buf) => {} }));
 
-app.use(`/users`, userRoute)
-app.use("/image", imageRoute)
-app.use("/probe", probeRoute)
-app.use("/metrics", metricsRoute)
+// app.use('/', (_req, res) => {
+//   res.json({ message: "Welcome to Infra Latte API" });
+// });
+app.use(`/api/users`, userRoute)
+app.use("/api/image", imageRoute)
+app.use("/api/probe", probeRoute)
+app.use("/api/metrics", metricsRoute)
 
 scheduleVercelPolling();
 
