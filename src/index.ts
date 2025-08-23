@@ -17,7 +17,6 @@ const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 
 const app = express();
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
@@ -31,7 +30,12 @@ app.use(`/api/image`, imageRoute);
 app.use(`/api/probe`, probeRoute);
 app.use(`/api/metrics`, metricsRoute);
 
-scheduleVercelPolling();
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
+// scheduleVercelPolling();
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
