@@ -4,7 +4,7 @@ import { RequestBody } from "./images.interface";
 const router = express.Router();
 
 router.get("/", (_req: Request, res: Response) => {
-  res.json({ message: "Hello World" });
+  res.status(200).json({ message: "Hello World" });
 });
 
 router.post("/", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -19,7 +19,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction): Promis
     // const img = await generateImage({ prompt, width, height });
     // ^ ensure this returns a serializable object
 
-    res.json({ message: "Image generated" });
+    res.status(200).json({ message: "Image generated" });
   } catch (err) {
     next(err);
   }

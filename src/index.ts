@@ -29,14 +29,15 @@ app.use(bodyParser.json({ verify: (_req: any, _res, _buf) => {} }));
 //   res.json({ message: "Welcome to Infra Latte API" });
 // });
 app.use(`/api/users`, userRoute)
-app.use("/api/image", imageRoute)
-app.use("/api/probe", probeRoute)
-app.use("/api/metrics", metricsRoute)
+app.use(`/api/image`, imageRoute)
+app.use(`/api/probe`, probeRoute)
+app.use(`/api/metrics`, metricsRoute)
 
 scheduleVercelPolling();
 
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)
-})
+});
 
+export default app;
