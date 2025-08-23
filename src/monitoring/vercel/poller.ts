@@ -2,7 +2,6 @@ import client from "prom-client";
 import cron from "node-cron";
 import { runProbe } from "../probe/probe.database";
 
-
 let seenId: string | undefined;
 
 const lastDeploy = new client.Gauge({
@@ -28,22 +27,25 @@ export const vercelPoll = async () => {
   const d = data?.deployments?.[0];
   if (!d) return;
 
-  const env = d.target ?? (d.meta?.githubCommitRef === "main" ? "production" : "preview");
+  const env =
+    d.target ?? (d.meta?.githubCommitRef === "main" ? "production" : "preview");
   const tsSec = Math.floor((d.createdAt ?? d.created ?? Date.now()) / 1000);
 
   lastDeploy.labels(project, d.state, env).set(tsSec);
 
   if (d.uid !== seenId) {
     seenId = d.uid;
-await runProbe();
+    await runProbe();
   }
-}
+};
 
 export function scheduleVercelPolling() {
   if (!process.env.VERCEL_TOKEN || !process.env.VERCEL_PROJECT) return;
   cron.schedule("*/10 * * * *", () => {
-  vercelPoll().then(() => {
-    console.log("Vercel poll successful");
-  }).catch(console.error);
-});
+    vercelPoll()
+      .then(() => {
+        console.log("Vercel poll successful");
+      })
+      .catch(console.error);
+  });
 }
