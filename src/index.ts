@@ -14,7 +14,8 @@ import { scheduleVercelPolling } from "./monitoring/vercel/poller";
 // }
 
 const PORT = parseInt(process.env.PORT as string, 10) || 3000;
-
+const isTest =
+  process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID !== undefined;
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,10 +36,9 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-// scheduleVercelPolling();
-
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+if (!isTest) {
+  scheduleVercelPolling?.();
+  app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+}
 
 export default app;
