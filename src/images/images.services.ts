@@ -3,8 +3,6 @@
 // import * as path from "node:path";
 // import { GenParams } from "./images.interface";
 
-
-
 // function svgFallback(prompt: string, w = 1024, h = 1024) {
 //   const safe = prompt.replace(/[&<>]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]!));
 //   return `

@@ -1,72 +1,82 @@
-import express, { type Request, type Response } from 'express';
-import { User, UnitUser, Users } from './user.interface';
-import { v4 as uuidv4 } from 'uuid';
+import express, { type Request, type Response } from "express";
+import { User, UnitUser, Users } from "./user.interface";
+import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
 const users: Users = {}; // In-memory "database"
 
 // Get all users
-router.get('/', (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response) => {
   res.json(Object.values(users));
 });
 
 // Add a new user
-router.post('/', (req: Request, res: Response) => {
+router.post("/", (req: Request, res: Response) => {
   const { username, email, password, firstName, lastName } = req.body;
 
   if (!username || !email || !password) {
-    res.status(400).json({ message: 'Username, email, and password are required' });
-
+    res
+      .status(400)
+      .json({ message: "Username, email, and password are required" });
   }
-  const usernameKey = Object.keys(users).find(key => users[key].username === username);
+  const usernameKey = Object.keys(users).find(
+    (key) => users[key].username === username,
+  );
   if (usernameKey && users[usernameKey]) {
-    res.status(409).json({ message: 'Username already exists' });
+    res.status(409).json({ message: "Username already exists" });
   }
-  const emailKey = Object.keys(users).find(key => users[key].email === email);
+  const emailKey = Object.keys(users).find((key) => users[key].email === email);
   if (emailKey && users[emailKey]) {
-    res.status(409).json({ message: 'Email already exists' });
+    res.status(409).json({ message: "Email already exists" });
   }
 
   const id = uuidv4();
-  const newUser: UnitUser = { id, username, email, password, firstName, lastName };
+  const newUser: UnitUser = {
+    id,
+    username,
+    email,
+    password,
+    firstName,
+    lastName,
+  };
   users[id] = newUser;
   console.log(`User added: ${JSON.stringify(newUser)}`);
   res.status(201).json(newUser);
 });
 
 // Get a specific user
-router.get('/:id', (req: Request, res: Response) => {
+router.get("/:id", (req: Request, res: Response) => {
   const user = users[req.params.id];
   if (!user) {
-    res.status(404).json({ message: 'User not found' });
+    res.status(404).json({ message: "User not found" });
   }
   res.json(user);
 });
 
 export default router;
 
-const mockUsers: Omit<UnitUser, 'id'>[] = [
+const mockUsers: Omit<UnitUser, "id">[] = [
   {
-    username: 'jdoe',
-    email: 'jdoe@example.com',
-    password: 'password123',
-    firstName: 'John',
-    lastName: 'Doe',
+    username: "jdoe",
+    email: "jdoe@example.com",
+    password: "password123",
+    firstName: "John",
+    lastName: "Doe",
   },
   {
-    username: 'asmith',
-    email: 'asmith@example.com',
-    password: 'securepass',
-    firstName: 'Alice',
-    lastName: 'Smith',
+    username: "asmith",
+    email: "asmith@example.com",
+    password: "securepass",
+    firstName: "Alice",
+    lastName: "Smith",
   },
   {
-    username: 'bwayne',
-    email: 'bwayne@waynecorp.com',
-    password: 'darkknight',
-    firstName: 'Bruce',
-    lastName: 'Wayne',
+    username: "bwayne",
+    email: "bwayne@waynecorp.com",
+    password: "darkknight",
+    firstName: "Bruce",
+    lastName: "Wayne",
   },
 ];
 

@@ -15,7 +15,8 @@ export async function runProbe() {
       const res = await fetch(t.url, { method });
       const dur = Number(process.hrtime.bigint() - start) / 1e9;
       httpDuration.labels(t.name, method, String(res.status)).observe(dur);
-      if (res.status >= 400) httpErrors.labels(t.name, String(res.status)).inc();
+      if (res.status >= 400)
+        httpErrors.labels(t.name, String(res.status)).inc();
     } catch (e: any) {
       const dur = Number(process.hrtime.bigint() - start) / 1e9;
       const status = e?.response?.status ?? "ERR";
@@ -25,7 +26,7 @@ export async function runProbe() {
   }
 }
 
- const router = Router();
+const router = Router();
 router.get("/", async (_req, res) => {
   await runProbe();
   res.json({ ok: true });

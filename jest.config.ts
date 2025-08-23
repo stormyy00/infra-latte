@@ -10,6 +10,6 @@ const config: Config = {
   extensionsToTreatAsEsm: [".ts"],
   testMatch: ["**/?(*.)+(spec|test).ts"],
   clearMocks: true,
-  coverageDirectory: "coverage"
+  coverageDirectory: "coverage",
 };
 export default config;

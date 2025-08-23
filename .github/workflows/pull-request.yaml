@@ -19,10 +19,10 @@ jobs:
   #   name: linting
   #   runs-on: ubuntu-latest
 
-    # steps:
-    #   - uses: actions/checkout@v4
-    #   - name: Use ACM Linting
-    #     uses: acm-ucr/linting@v2
+  # steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Use ACM Linting
+  #     uses: acm-ucr/linting@v2
 
   test:
     name: tests
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.2.3 
+          bun-version: 1.2.3
 
       - name: Install deps
         run: bun install --frozen-lockfile

@@ -9,7 +9,11 @@ services:
       - VERCEL_PROJECT=${VERCEL_PROJECT}
     ports: ["3000:3000"]
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/metrics > /dev/null || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:3000/api/metrics > /dev/null || exit 1",
+        ]
       interval: 30s
       timeout: 5s
       retries: 5
