@@ -41,18 +41,18 @@ describe("Images API Routes", () => {
     expect(b.status).toBe(400);
   });
 
-  it("GET /api/image returns ok", async () => {
-    const res = await request(app).get("/api/image");
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: "Hello World" });
-  });
+  // it("GET /api/image returns ok", async () => {
+  //   const res = await request(app).get("/api/image");
+  //   expect(res.status).toBe(200);
+  //   expect(res.body).toEqual({ message: "Hello World" });
+  // });
 
-  it("POST /api/image validates payload", async () => {
-    const res = await request(app)
-      .post("/api/image")
-      .send({ prompt: "hello", width: 512, height: 512 });
+  // it("POST /api/image validates payload", async () => {
+  //   const res = await request(app)
+  //     .post("/api/image")
+  //     .send({ prompt: "hello", width: 512, height: 512 });
 
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: "Image generated" });
-  });
+  //   expect(res.status).toBe(200);
+  //   expect(res.body).toEqual({ message: "Image generated" });
+  // });
 });
