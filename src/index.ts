@@ -34,7 +34,7 @@ app.use((err: any, _req: any, res: any, _next: any) => {
 app.use(`/api/users`, userRoute);
 app.use(`/api/image`, imageRoute);
 app.use(`/api/probe`, probeRoute);
-app.use(`/api/metrics`, metricsRoute);
+app.use(`/metrics`, metricsRoute);
 
 if (!isTest) {
   scheduleVercelPolling();
