@@ -25,6 +25,14 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otel-collector.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otel-collector.yaml:ro
+    ports:
+      - "4318:4318" # OTLP/HTTP ingest from Next.js
+      - "9464:9464" # Prometheus scrape endpoint
 
   prometheus:
     image: prom/prometheus:latest
