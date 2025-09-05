@@ -2,10 +2,11 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";
+import cron from "node-cron";
 
 import userRoute from "./users/user.database";
 import imageRoute from "./images/images.database";
-import probeRoute from "./monitoring/probe/probe.database";
+import probeRoute, { runProbe } from "./monitoring/probe/probe.database";
 import metricsRoute from "./monitoring/metrics/metrics.database";
 import { scheduleVercelPolling } from "./monitoring/vercel/poller";
 import dotenv from "dotenv";
@@ -38,6 +39,16 @@ app.use(`/api/metrics`, metricsRoute);
 
 if (!isTest) {
   scheduleVercelPolling();
+  cron.schedule("* * * * *", async () => {
+    console.log(
+      `[CRON] Running scheduled probe at ${new Date().toISOString()}`,
+    );
+    try {
+      await runProbe();
+    } catch (err) {
+      console.error("[CRON] Probe failed:", err);
+    }
+  });
   app.listen(PORT, () =>
     console.log(`Server is listening on port ${`http://localhost:${PORT}`}`),
   );

@@ -3,12 +3,23 @@ import express, {
   type Response,
   type NextFunction,
 } from "express";
-// import { generateImage } from "./images.services";
+import { generateImage } from "./images.services";
 import { RequestBody } from "./images.interface";
+const fs = require("fs");
+const path = require("path");
+
 const router = express.Router();
 
 router.get("/", (_req: Request, res: Response) => {
-  res.status(200).json({ message: "Hello World" });
+  const getDir = process.cwd();
+  const imagesDir = path.join(getDir, "public/generated");
+
+  try {
+    const files = fs.readdirSync(imagesDir);
+    res.status(200).json({ message: "Images found" });
+  } catch (err) {
+    res.status(500).json({ error: "Unable to read images directory" });
+  }
 });
 
 router.post(
@@ -22,10 +33,9 @@ router.post(
         return;
       }
 
-      // const img = await generateImage({ prompt, width, height });
-      // ^ ensure this returns a serializable object
-
-      res.status(200).json({ message: "Image generated" });
+      const img = await generateImage({ prompt, width, height });
+      console.log("Image generated:", img);
+      res.status(200).json({ message: "Image generated", data: img });
     } catch (err) {
       next(err);
     }
