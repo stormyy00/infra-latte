@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";
+
 import cron from "node-cron";
 
 import userRoute from "./users/user.database";
@@ -10,6 +11,7 @@ import probeRoute, { runProbe } from "./monitoring/probe/probe.database";
 import metricsRoute from "./monitoring/metrics/metrics.database";
 import { scheduleVercelPolling } from "./monitoring/vercel/poller";
 import dotenv from "dotenv";
+import { generateImage, generateInfographic } from "./images/images.services";
 dotenv.config({ path: ".env" });
 // if (!process.env.PORT) {
 //     console.log(`No port value specified...`)
@@ -35,9 +37,12 @@ app.use((err: any, _req: any, res: any, _next: any) => {
 app.use(`/api/users`, userRoute);
 app.use(`/api/image`, imageRoute);
 app.use(`/api/probe`, probeRoute);
-app.use(`/metrics`, metricsRoute);
+app.use(`/api/metrics`, metricsRoute);
 
 if (!isTest) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
   scheduleVercelPolling();
   cron.schedule("* * * * *", async () => {
     console.log(
@@ -49,9 +54,17 @@ if (!isTest) {
       console.error("[CRON] Probe failed:", err);
     }
   });
-  app.listen(PORT, () =>
-    console.log(`Server is listening on port ${`http://localhost:${PORT}`}`),
-  );
+  cron.schedule("*/5 * * * *", async () => {
+    console.log(
+      `[CRON] Running scheduled image generation at ${new Date().toISOString()}`,
+    );
+    try {
+      await generateInfographic({
+        title: "Sample Infographic",
+      });
+    } catch (err) {
+      console.error("[CRON] Image generation failed:", err);
+    }
+  });
 }
-
 export default app;

@@ -2,10 +2,10 @@ import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { GenParams } from "./images.interface";
-import { InferenceClient } from "@huggingface/inference";
+// import { InferenceClient } from "@huggingface/inference";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
-const client = new InferenceClient(process.env.HF_TOKEN);
+// const client = new InferenceClient(process.env.HF_TOKEN);
 
 function svgFallback(prompt: string, w = 1024, h = 1024) {
   const safe = prompt.replace(
@@ -44,11 +44,11 @@ export async function generateImage({
   const outDir = path.join(process.cwd(), "public/generated");
   await fs.mkdir(outDir, { recursive: true });
 
-  if (!process.env.HF_TOKEN) {
-    throw new Error(
-      "HF_TOKEN missing – create one at https://hf.co/settings/tokens (enable Inference Providers).",
-    );
-  }
+  // if (!process.env.HF_TOKEN) {
+  //   throw new Error(
+  //     "HF_TOKEN missing – create one at https://hf.co/settings/tokens (enable Inference Providers).",
+  //   );
+  // }
 
   // Returns a Blob in Node (arrayBuffer() -> Buffer)
   // const image = await client.textToImage({
@@ -65,14 +65,16 @@ export async function generateImage({
   //   },
   // }) as unknown as Blob;
 
-  const image = await fetch(
-    `${process.env.IMAGE_SERVER_URL}/api/generateimage`,
-    {
-      method: "POST",
-      body: JSON.stringify({ prompt, width, height }),
-      headers: { "Content-Type": "application/json" },
-    },
-  );
+  // const image = await fetch(
+  //   `${process.env.IMAGE_SERVER_URL}/api/generateimage`,
+  //   {
+  //     method: "POST",
+  //     body: JSON.stringify({ prompt, width, height }),
+  //     headers: { "Content-Type": "application/json" },
+  //   },
+  // );
+
+  const image = await fetch(`https://pollinations.ai/p/${prompt}`);
 
   console.log("Generated image from HF Inference API", image);
   if (!image) throw new Error("No image generated");
@@ -92,6 +94,58 @@ export async function generateImage({
       mimeType: mime,
       provider: "hf:fal-ai/Qwen-Image",
       // include base64 for REST clients that want inline bytes:
+      b64: buf.toString("base64"),
+    },
+  };
+}
+
+export async function generateInfographic({
+  title,
+  data = mock,
+}: {
+  title: string;
+  data?: Record<string, any>; // e.g. { "Revenue": "$1.2M", "Growth": "40%", "Users": "12k" }
+  theme?: string;
+}) {
+  const outDir = path.join(process.cwd(), "public/generated");
+  await fs.mkdir(outDir, { recursive: true });
+
+  // Build infographic prompt
+  const formattedData = Object.entries(data)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(", ");
+  const prompt = `
+    An infographic poster titled "${title}".
+    Show the following data points clearly: ${formattedData}.
+    Use clean, professional layout with labeled icons and charts.
+    Displayed on a minimalist background with subtle grid lines,
+    lit with even soft daylight for emphasis.
+    Composition should be front-on, infographic centered, sharp labels.
+    Apply a polished corporate finish with high-resolution vector style.
+`;
+
+  // Swap in your preferred provider
+  const image = await fetch(
+    `https://pollinations.ai/p/${encodeURIComponent(prompt)}`,
+  );
+
+  if (!image.ok) throw new Error("Infographic generation failed");
+
+  const mime = "image/png";
+  const ab = await image.arrayBuffer();
+  const buf = Buffer.from(ab);
+
+  const ext = mime.includes("jpeg") ? "jpg" : "png";
+  const file = path.join(outDir, `infographic-${Date.now()}.${ext}`);
+  await fs.writeFile(file, buf);
+
+  return {
+    message: "Infographic generated",
+    data: {
+      filePath: file,
+      uri: `file://${file}`,
+      mimeType: mime,
+      provider: "hf:fal-ai/Qwen-Image",
       b64: buf.toString("base64"),
     },
   };
@@ -171,3 +225,119 @@ export async function generateImage({
 //     provider: "gemini-image",
 //   };
 // }
+
+const mock = [
+  {
+    run_id: "probe_2025-09-06T19:05:12.431Z",
+    project: "ttickle",
+    deployment: {
+      vercel_project_id: "prj_abc123",
+      deployment_id: "dpl_7f92e1c",
+      environment: "production",
+      commit_sha: "9a1b2c3",
+      created_at: "2025-09-06T18:57:44.120Z",
+    },
+    probe_config: {
+      interval_s: 60,
+      timeout_ms: 5000,
+      retries: 1,
+      user_agent: "Infra-Latte/1.2 (+probe)",
+    },
+    summary: {
+      window: "2025-09-06T19:00:00Z/2025-09-06T19:05:00Z",
+      total_probes: 3,
+      ok: 2,
+      fail: 1,
+      availability_pct: 66.67,
+      latency_ms: { p50: 182, p95: 518, max: 901 },
+      status: "degraded",
+    },
+    probes: [
+      {
+        timestamp: "2025-09-06T19:04:58.902Z",
+        region: "sfo1",
+        url: "https://your-app.vercel.app/health",
+        method: "GET",
+        status_code: 200,
+        success: true,
+        timings_ms: {
+          dns: 8,
+          tcp: 20,
+          tls: 45,
+          ttfb: 131,
+          transfer: 7,
+          total: 211,
+        },
+        size_bytes: 1423,
+        vercel: {
+          edge_region: "sfo1",
+          origin_region: "pdx1",
+          cache: "HIT",
+          x_vercel_id: "sfo1:pdx1:abc123",
+        },
+        headers: {
+          server: "Vercel",
+          "x-vercel-id": "sfo1:pdx1:abc123",
+          "x-vercel-cache": "HIT",
+          "content-type": "application/json",
+        },
+        retries: 0,
+      },
+      {
+        timestamp: "2025-09-06T19:04:59.114Z",
+        region: "iad1",
+        url: "https://your-app.vercel.app/api/users",
+        method: "GET",
+        status_code: 200,
+        success: true,
+        timings_ms: {
+          dns: 11,
+          tcp: 26,
+          tls: 52,
+          ttfb: 402,
+          transfer: 12,
+          total: 503,
+        },
+        size_bytes: 5127,
+        serverless_function: {
+          cold_start: true,
+          duration_ms: 367,
+          memory_mb: 128,
+        },
+        vercel: {
+          edge_region: "iad1",
+          origin_region: "iad1",
+          cache: "MISS",
+          x_vercel_id: "iad1:iad1:def456",
+        },
+        headers: {
+          server: "Vercel",
+          "x-vercel-id": "iad1:iad1:def456",
+          "x-vercel-cache": "MISS",
+          "cache-control": "private, max-age=0",
+        },
+        retries: 0,
+      },
+      {
+        timestamp: "2025-09-06T19:05:00.021Z",
+        region: "fra1",
+        url: "https://your-app.vercel.app/api/report",
+        method: "POST",
+        status_code: 0,
+        success: false,
+        error: {
+          type: "TIMEOUT",
+          message: "Probe exceeded 5000 ms",
+          timeout_ms: 5000,
+        },
+        timings_ms: { total: 5000 },
+        retries: 1,
+      },
+    ],
+    labels: {
+      service: "web",
+      team: "platform",
+      owner: "jonathan",
+    },
+  },
+];
